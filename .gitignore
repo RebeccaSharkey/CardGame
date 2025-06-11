@@ -1,32 +1,72 @@
-# Prerequisites
+# === Prerequisites ===
 *.d
 
-# Compiled Object files
+# === Build artifacts ===
+/Build/
+**/CMakeFiles/
+/CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+*.vcxproj*
+*.sln
+*.ninja
+.ninja_deps
+.ninja_log
+compile_commands.json
+
+# === IDE / Editor ===
+.idea/
+*.iml
+.vscode/
+
+# === Visual Studio Files (if ever used) ===
+*.sln
+*.vcxproj*
+*.user
+
+# === Compiled Object files ===
 *.slo
 *.lo
 *.o
 *.obj
 
-# Precompiled Headers
+# === Precompiled Headers ===
 *.gch
 *.pch
 
-# Compiled Dynamic libraries
+# === Compiled Dynamic libraries ===
 *.so
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
+# === Compiled Static libraries ===
 *.lai
 *.la
 *.a
 *.lib
 
-# Executables
+# === Debug / Linker / Executable Files ===
 *.exe
 *.out
 *.app
+*.pdb
+*.ilk
+
+# === Shader Outputs (SPIR-V) ===
+*.spv
+
+# === Fortran module files ===
+*.mod
+*.smod
+
+# === OS Junk ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Logs and Temp Files ===
+*.log
+*.bak
+*~
+*.swp
