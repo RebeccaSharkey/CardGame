@@ -2,7 +2,6 @@
 
 #include "Platform/Windows/Win32Window.h"
 #include "Renderer/VulkanRenderer.h"
-#include <iostream>
 
 int main() {
     Win32Window window(1280, 720, "Card Game");

@@ -28,7 +28,7 @@ bool VulkanRenderer::Init(HWND windowHandle, const char* applicationName)
     return true;
 }
 
-void VulkanRenderer::Cleanup()
+void VulkanRenderer::Cleanup() const
 {
     if (m_Instance != VK_NULL_HANDLE)
     {

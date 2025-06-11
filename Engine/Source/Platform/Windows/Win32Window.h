@@ -10,10 +10,10 @@ public:
     Win32Window(int width, int height, const char* title);
     ~Win32Window();
 
-    HWND GetWindowHandle();
+    [[nodiscard]] HWND GetWindowHandle() const;
 
     void PollEvents();
-    bool ShouldClose();
+    [[nodiscard]] bool ShouldClose() const;
 
 private:
     HWND m_WindowHandle;

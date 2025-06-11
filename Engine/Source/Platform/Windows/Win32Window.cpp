@@ -25,7 +25,7 @@ Win32Window::~Win32Window()
     DestroyWindow(m_WindowHandle);
 }
 
-HWND Win32Window::GetWindowHandle()
+HWND Win32Window::GetWindowHandle() const
 {
     return m_WindowHandle;
 }
@@ -46,15 +46,13 @@ void Win32Window::PollEvents()
     }
 }
 
-bool Win32Window::ShouldClose()
+bool Win32Window::ShouldClose() const
 {
     return m_WindowClosed;
 }
 
 LRESULT Win32Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    Win32Window* window = reinterpret_cast<Win32Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-
     switch (message)
     {
         case WM_CLOSE:

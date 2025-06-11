@@ -10,7 +10,7 @@ class VulkanRenderer
 
 public:
     bool Init(HWND windowHandle, const char* applicationName);
-    void Cleanup();
+    void Cleanup() const;
 
 private:
     VkInstance m_Instance = VK_NULL_HANDLE;
