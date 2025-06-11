@@ -44,16 +44,17 @@ bool VulkanRenderer::Init(const char* applicationName, void* windowHandle)
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
         createInfo.ppEnabledExtensionNames = extensions;
-        createInfo.enabledExtensionCount = ArraySize(extensions);
+        createInfo.enabledExtensionCount = std::size(extensions);
         createInfo.ppEnabledLayerNames = layers;
-        createInfo.enabledLayerCount = ArraySize(layers);
+        createInfo.enabledLayerCount = std::size(layers);
 
         VK_CHECK_RESULT(vkCreateInstance(&createInfo, nullptr, &m_VkContext->instance))
     }
 
     //Setup Debug
     {
-        auto vkCreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_VkContext->instance, "vkCreateDebugUtilsMessengerEXT");
+        auto vkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(
+            m_VkContext->instance, "vkCreateDebugUtilsMessengerEXT"));
 
         if (vkCreateDebugUtilsMessengerEXT)
         {
@@ -77,7 +78,7 @@ bool VulkanRenderer::Init(const char* applicationName, void* windowHandle)
         #if WIN32
             VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
             surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-            surfaceCreateInfo.hwnd = (HWND)windowHandle;
+            surfaceCreateInfo.hwnd = static_cast<HWND>(windowHandle);
             surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
 
             VK_CHECK_RESULT(vkCreateWin32SurfaceKHR(m_VkContext->instance, &surfaceCreateInfo, nullptr, &m_VkContext->surface))
@@ -88,7 +89,7 @@ bool VulkanRenderer::Init(const char* applicationName, void* windowHandle)
 
     // Get GPU and GPU Index
     {
-        m_VkContext->graphicsFamilyIndex = -1;
+        m_VkContext->graphicsFamilyIndex = UINT32_MAX;
         uint32_t gpuCount = 0;
         //TODO: Suballocation from Main Allocation
         VkPhysicalDevice gpus[10];
@@ -103,7 +104,7 @@ bool VulkanRenderer::Init(const char* applicationName, void* windowHandle)
             //TODO: Suballocation from Main Allocation
             VkQueueFamilyProperties queueFamilyProperties[10] = {};
 
-            vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount, 0);
+            vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount, nullptr);
             vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount, queueFamilyProperties);
 
             for (uint32_t j = 0; j < queueFamilyCount; j++)
@@ -123,7 +124,7 @@ bool VulkanRenderer::Init(const char* applicationName, void* windowHandle)
             }
         }
 
-        if ( m_VkContext->graphicsFamilyIndex < 0 )
+        if ( m_VkContext->graphicsFamilyIndex == UINT32_MAX )
         {
             return false;
         }
@@ -146,7 +147,7 @@ bool VulkanRenderer::Init(const char* applicationName, void* windowHandle)
         deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
         deviceCreateInfo.queueCreateInfoCount = 1;
         deviceCreateInfo.ppEnabledExtensionNames = extensions;
-        deviceCreateInfo.enabledExtensionCount = ArraySize(extensions);
+        deviceCreateInfo.enabledExtensionCount = std::size(extensions);
 
         VK_CHECK_RESULT(vkCreateDevice(m_VkContext->gpu, &deviceCreateInfo,nullptr, &m_VkContext->device));
 
@@ -163,11 +164,9 @@ bool VulkanRenderer::Init(const char* applicationName, void* windowHandle)
 
         for (uint32_t i = 0; i < formatCount; i++)
         {
-            VkSurfaceFormatKHR format = surfaceFormat[i];
-
-            if (format.format == VK_FORMAT_B8G8R8A8_SRGB)
+            if (surfaceFormat[i].format == VK_FORMAT_B8G8R8A8_SRGB)
             {
-                m_VkContext->surfaceFormat = format;
+                m_VkContext->surfaceFormat = surfaceFormat[i];
                 break;
             }
         }
@@ -224,8 +223,9 @@ void VulkanRenderer::Cleanup() const
     }
 
     if (m_VkContext->debugMessenger != VK_NULL_HANDLE) {
-        auto vkDestroyDebugUtilsMessengerEXT = (PFN_vkDestroyDebugUtilsMessengerEXT)
-            vkGetInstanceProcAddr(m_VkContext->instance, "vkDestroyDebugUtilsMessengerEXT");
+        const auto vkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(
+            m_VkContext->instance, "vkDestroyDebugUtilsMessengerEXT"));
+
         if (vkDestroyDebugUtilsMessengerEXT) {
             vkDestroyDebugUtilsMessengerEXT(m_VkContext->instance, m_VkContext->debugMessenger, nullptr);
         }
@@ -240,7 +240,7 @@ void VulkanRenderer::Cleanup() const
     }
 }
 
-bool VulkanRenderer::Render()
+bool VulkanRenderer::Render() const
 {
     uint32_t imageIndex = 0;
     VK_CHECK_RESULT(vkAcquireNextImageKHR(m_VkContext->device, m_VkContext->swapchain, 0, m_VkContext->acquireSemaphore, nullptr, &imageIndex));
@@ -264,7 +264,7 @@ bool VulkanRenderer::Render()
 
     // Rendering Commands
     {
-        VkClearColorValue clearColorValue = {0.015f, 0.015f, 0.02f, 1.0f};
+        constexpr VkClearColorValue clearColorValue = {0.015f, 0.015f, 0.02f, 1.0f};
         VkImageSubresourceRange subresourceRange = {};
         subresourceRange.layerCount = 1;
         subresourceRange.levelCount = 1;
@@ -276,7 +276,7 @@ bool VulkanRenderer::Render()
     VK_CHECK_RESULT(vkEndCommandBuffer(cmd))
 
     // Submit Graphics Queue
-    VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    constexpr VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -287,7 +287,7 @@ bool VulkanRenderer::Render()
     submitInfo.pWaitSemaphores = &m_VkContext->acquireSemaphore;
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitDstStageMask = &pipelineStageFlags;
-    VK_CHECK_RESULT(vkQueueSubmit(m_VkContext->graphicsQueue, 1, &submitInfo, 0));
+    VK_CHECK_RESULT(vkQueueSubmit(m_VkContext->graphicsQueue, 1, &submitInfo, nullptr));
 
     // Present Graphics Queue
     VkPresentInfoKHR presentInfo = {};

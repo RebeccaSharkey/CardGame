@@ -12,10 +12,10 @@ public:
 
     bool InitWindow(int width, int height, const char* title);
 
-    [[nodiscard]] HWND GetWindowHandle() const;
+    HWND GetWindowHandle() const;
 
     void PollEvents();
-    [[nodiscard]] bool ShouldClose() const;
+    bool ShouldClose() const;
 
 private:
     HWND m_WindowHandle;

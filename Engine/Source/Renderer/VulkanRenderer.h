@@ -22,7 +22,7 @@ struct VkContext
     VkInstance instance = VK_NULL_HANDLE;
 
     VkSurfaceKHR surface = VK_NULL_HANDLE;
-    VkSurfaceFormatKHR surfaceFormat;
+    VkSurfaceFormatKHR surfaceFormat = {};
 
     VkPhysicalDevice gpu = VK_NULL_HANDLE;
     VkDevice device = VK_NULL_HANDLE;
@@ -33,21 +33,24 @@ struct VkContext
     VkSemaphore acquireSemaphore = VK_NULL_HANDLE;
     VkSemaphore submitSemaphore = VK_NULL_HANDLE;
 
-    uint32_t swapchainImageCount;
+    uint32_t swapchainImageCount = {};
     //TODO: Suballocation from Main Allocation
-    VkImage swapchainImages[5];
+    VkImage swapchainImages[5] = {};
 
-    int graphicsFamilyIndex;
+    uint32_t graphicsFamilyIndex = {};
 };
 
 class VulkanRenderer
 {
 
 public:
-    bool Init(const char* applicationName, void*  windowHandle);
     void Cleanup() const;
 
-    bool Render();
+    bool Init(const char* applicationName, void*  windowHandle);
+
+    bool Render() const;
+
+
 
 private:
     VkContext* m_VkContext = nullptr;
