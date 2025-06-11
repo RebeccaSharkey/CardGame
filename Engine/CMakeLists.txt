@@ -1,15 +1,15 @@
 project(Engine)
 
-# Collect Source Files
+# Collect source files
 file(GLOB_RECURSE ENGINE_SRC CONFIGURE_DEPENDS "Source/*.cpp" "Source/*.h")
 
-# Create Static Library
+# Create static library
 add_library(Engine STATIC ${ENGINE_SRC})
 
-# Headers available to anything that links to it
+# Engine headers (public so Game can include them)
 target_include_directories(Engine PUBLIC Source)
 
-# Vulkan dependency
+# Vulkan setup
 find_package(Vulkan REQUIRED)
-target_include_directories(Engine PRIVATE ${Vulkan_INCLUDE_DIRS})
+target_include_directories(Engine PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(Engine PRIVATE ${Vulkan_LIBRARIES})

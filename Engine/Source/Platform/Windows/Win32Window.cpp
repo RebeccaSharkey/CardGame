@@ -3,6 +3,7 @@
 #include "Win32Window.h"
 
 Win32Window::Win32Window(int width, int height, const char* title)
+    : m_WindowClosed(false)
 {
     WNDCLASS windowClass = {};
     windowClass.lpfnWndProc = WindowProc;
@@ -52,9 +53,20 @@ bool Win32Window::ShouldClose()
 
 LRESULT Win32Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if (message == WM_CLOSE) {
-        PostQuitMessage(0);
-        return 0;
+    Win32Window* window = reinterpret_cast<Win32Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+    switch (message)
+    {
+        case WM_CLOSE:
+            PostQuitMessage(0);
+            return 0;
+
+        case WM_DESTROY:
+            return 0;
+
+        default:
+            break;
     }
+
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
