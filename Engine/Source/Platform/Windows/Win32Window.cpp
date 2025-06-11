@@ -2,27 +2,46 @@
 
 #include "Win32Window.h"
 
-Win32Window::Win32Window(int width, int height, const char* title)
-    : m_WindowClosed(false)
+Win32Window::Win32Window()
+    : m_WindowHandle(nullptr), m_WindowClosed(false)
 {
     WNDCLASS windowClass = {};
-    windowClass.lpfnWndProc = WindowProc;
+    windowClass.lpfnWndProc = platform_window_callback;
     windowClass.hInstance = GetModuleHandle(nullptr);
-    windowClass.lpszClassName = "CardGameWindow";
+    windowClass.lpszClassName = "Platform_Window";
+    windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
 
-    RegisterClass(&windowClass);
-
-    m_WindowHandle = CreateWindowEx(0, windowClass.lpszClassName, title,
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-        CW_USEDEFAULT, CW_USEDEFAULT, width, height,
-        nullptr, nullptr, windowClass.hInstance, nullptr);
-
-    SetWindowLongPtr(m_WindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+    if (!RegisterClass(&windowClass)) {
+        MessageBox(nullptr, "Window could not be created!", "Error", MB_ICONEXCLAMATION | MB_OK);
+        exit(-1); // or throw
+    }
 }
 
 Win32Window::~Win32Window()
 {
-    DestroyWindow(m_WindowHandle);
+    if ( m_WindowHandle != nullptr )
+    {
+        DestroyWindow(m_WindowHandle);
+    }
+}
+
+bool Win32Window::InitWindow(int width, int height, const char *title)
+{
+    m_WindowHandle = CreateWindowExA(
+        WS_EX_APPWINDOW,
+        "Platform_Window", title,
+        WS_OVERLAPPED | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
+        100, 100, width, height,
+        nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
+
+    if (m_WindowHandle == nullptr)
+    {
+        MessageBox(nullptr, "Failed to create window", "Error", MB_ICONEXCLAMATION | MB_OK);
+        return false;
+    }
+
+    ShowWindow(m_WindowHandle, SW_SHOW);
+    return true;
 }
 
 HWND Win32Window::GetWindowHandle() const
@@ -51,7 +70,7 @@ bool Win32Window::ShouldClose() const
     return m_WindowClosed;
 }
 
-LRESULT Win32Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT Win32Window::platform_window_callback(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
@@ -66,5 +85,5 @@ LRESULT Win32Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
             break;
     }
 
-    return DefWindowProc(hWnd, message, wParam, lParam);
+    return DefWindowProc(window, message, wParam, lParam);
 }

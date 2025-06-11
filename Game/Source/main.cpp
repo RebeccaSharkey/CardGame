@@ -4,17 +4,23 @@
 #include "Renderer/VulkanRenderer.h"
 
 int main() {
-    Win32Window window(1280, 720, "Card Game");
 
-    VulkanRenderer renderer;
-    if (!renderer.Init(window.GetWindowHandle(), "Card Game"))
+    Win32Window window{};
+    if (!window.InitWindow(1600, 720, "Card Game"))
     {
         return -1;
     }
 
-    while (!window.ShouldClose()) {
+    VulkanRenderer renderer;
+    if (!renderer.Init("Card Game", window.GetWindowHandle()))
+    {
+        return -1;
+    }
+
+    while (!window.ShouldClose())
+    {
         window.PollEvents();
-        // Here we'll render each frame
+        renderer.Render();
     }
 
     renderer.Cleanup();

@@ -7,8 +7,10 @@
 class Win32Window {
 
 public:
-    Win32Window(int width, int height, const char* title);
+    Win32Window();
     ~Win32Window();
+
+    bool InitWindow(int width, int height, const char* title);
 
     [[nodiscard]] HWND GetWindowHandle() const;
 
@@ -18,5 +20,5 @@ public:
 private:
     HWND m_WindowHandle;
     bool m_WindowClosed;
-    static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK platform_window_callback(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 };

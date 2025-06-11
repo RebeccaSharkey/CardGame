@@ -3,15 +3,52 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
-#include <Windows.h>
+#include <iostream>
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData)
+{
+    std::cout << "Validation Error: " << pCallbackData->pMessage << std::endl;
+    return false;
+}
+
+struct VkContext
+{
+    VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
+
+    VkInstance instance = VK_NULL_HANDLE;
+
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
+    VkSurfaceFormatKHR surfaceFormat;
+
+    VkPhysicalDevice gpu = VK_NULL_HANDLE;
+    VkDevice device = VK_NULL_HANDLE;
+    VkQueue graphicsQueue = VK_NULL_HANDLE;
+
+    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+    VkCommandPool commandPool = VK_NULL_HANDLE;
+    VkSemaphore acquireSemaphore = VK_NULL_HANDLE;
+    VkSemaphore submitSemaphore = VK_NULL_HANDLE;
+
+    uint32_t swapchainImageCount;
+    //TODO: Suballocation from Main Allocation
+    VkImage swapchainImages[5];
+
+    int graphicsFamilyIndex;
+};
 
 class VulkanRenderer
 {
 
 public:
-    bool Init(HWND windowHandle, const char* applicationName);
+    bool Init(const char* applicationName, void*  windowHandle);
     void Cleanup() const;
 
+    bool Render();
+
 private:
-    VkInstance m_Instance = VK_NULL_HANDLE;
+    VkContext* m_VkContext = nullptr;
 };
