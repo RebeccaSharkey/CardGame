@@ -1,5 +1,6 @@
 ﻿// © 2025 Ctrl Alt Delete Games. All rights reserved.
 
+#include "Platform/Platform.h"
 #include "Win32Window.h"
 
 Win32Window::Win32Window()
@@ -86,4 +87,13 @@ LRESULT Win32Window::platform_window_callback(HWND window, UINT message, WPARAM 
     }
 
     return DefWindowProc(window, message, wParam, lParam);
+}
+
+void platform_get_window_size(uint32_t *width, uint32_t *height, void* windowHandle)
+{
+    RECT rect;
+    GetClientRect(HWND(windowHandle), &rect);
+
+    *width = rect.right - rect.left;
+    *height = rect.bottom - rect.top;
 }
