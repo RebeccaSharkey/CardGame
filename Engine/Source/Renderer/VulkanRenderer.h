@@ -31,7 +31,6 @@ struct VkContext
     VkQueue graphicsQueue = VK_NULL_HANDLE;
 
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
     VkCommandPool commandPool = VK_NULL_HANDLE;
     VkRenderPass renderPass = VK_NULL_HANDLE;
 

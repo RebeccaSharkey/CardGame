@@ -361,18 +361,52 @@ bool VulkanRenderer::Render() const
 
 void VulkanRenderer::Cleanup() const
 {
-    if (m_VkContext.device != VK_NULL_HANDLE) {
-        if (m_VkContext.swapchain != VK_NULL_HANDLE) {
+    if (m_VkContext.device != VK_NULL_HANDLE)
+    {
+        for (uint32_t i = 0; i < m_VkContext.swapchainImageCount; ++i)
+        {
+            if (m_VkContext.framebuffers[i] != VK_NULL_HANDLE)
+            {
+                vkDestroyFramebuffer(m_VkContext.device, m_VkContext.framebuffers[i], nullptr);
+            }
+            if (m_VkContext.swapchainImageViews[i] != VK_NULL_HANDLE)
+            {
+                vkDestroyImageView(m_VkContext.device, m_VkContext.swapchainImageViews[i], nullptr);
+            }
+        }
+
+        if (m_VkContext.acquireSemaphore != VK_NULL_HANDLE)
+        {
+            vkDestroySemaphore(m_VkContext.device, m_VkContext.acquireSemaphore, nullptr);
+        }
+        if (m_VkContext.submitSemaphore != VK_NULL_HANDLE)
+        {
+            vkDestroySemaphore(m_VkContext.device, m_VkContext.submitSemaphore, nullptr);
+        }
+
+        if (m_VkContext.swapchain != VK_NULL_HANDLE)
+        {
             vkDestroySwapchainKHR(m_VkContext.device, m_VkContext.swapchain, nullptr);
         }
+        if (m_VkContext.commandPool != VK_NULL_HANDLE)
+        {
+            vkDestroyCommandPool(m_VkContext.device, m_VkContext.commandPool, nullptr);
+        }
+        if (m_VkContext.renderPass != VK_NULL_HANDLE)
+        {
+            vkDestroyRenderPass(m_VkContext.device, m_VkContext.renderPass, nullptr);
+        }
+
         vkDestroyDevice(m_VkContext.device, nullptr);
     }
 
-    if (m_VkContext.debugMessenger != VK_NULL_HANDLE) {
+    if (m_VkContext.debugMessenger != VK_NULL_HANDLE)
+    {
         const auto vkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(
             m_VkContext.instance, "vkDestroyDebugUtilsMessengerEXT"));
 
-        if (vkDestroyDebugUtilsMessengerEXT) {
+        if (vkDestroyDebugUtilsMessengerEXT)
+        {
             vkDestroyDebugUtilsMessengerEXT(m_VkContext.instance, m_VkContext.debugMessenger, nullptr);
         }
     }
