@@ -352,7 +352,8 @@ bool VulkanRenderer::Render() const
     VK_CHECK_RESULT(vkQueuePresentKHR(m_VkContext.graphicsQueue, &presentInfo));
 
     // Wait for Idle Command Buffer and then Free Up the Command Buffer
-    //VK_CHECK_RESULT(vkDeviceWaitIdle(m_VkContext.device));
+    // TODO: Remove wait for idle
+    VK_CHECK_RESULT(vkDeviceWaitIdle(m_VkContext.device));
     vkFreeCommandBuffers(m_VkContext.device, m_VkContext.commandPool, 1, &cmd);
 
     return true;
